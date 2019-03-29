@@ -1,0 +1,25 @@
+#insert ("SolidRings.sps")
+
+function MakeNozle(int i,int n, float hight, float decline, float Diameter[])
+{
+  solid Solid 
+  float thickness
+  
+  switch(i)
+  {
+  case 1: 
+   for(int i_1=0; i_1 < n;i_1++)     
+    {
+    if (i_1==0)
+       {thickness = 3} 
+      else 
+       {thickness = 1}
+       
+      Solid = Solid + SolidRings(hight, Diameter[i_1], thickness)
+      hight = hight - decline 
+    }
+   
+  }
+  
+  return Solid
+}
