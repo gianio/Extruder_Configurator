@@ -1,0 +1,68 @@
+//Main 
+
+#insert("importers.sps")
+#insert("MakeNozle.sps")
+
+
+
+// Fix Parameters
+float S1_diameter = 40
+float S1_thickness = 0.6
+float S1_hight = 10
+float St_length = 14
+float St_width = 0.6
+float St_hight =20
+float decline =1 
+
+// Open Parameters to the Customer 
+open float scale1 {
+  name = "Scale Bottom"
+  descr = "Sacle Bottom Part"
+  value = 1
+}
+open int Form {
+  name = "Which From you like to choose"
+  descr = "Form"
+  value = 1
+} 
+open int Colors {
+  name = "How many colors you like"
+  descr = "Colors"
+  value = 1
+}
+open float Diameter1 {
+  name = "Diameter of first solid"
+  descr = "diameter"
+  value = 0
+}
+open float Diameter2 {
+  name = "Diameter of second solid"
+  descr = "diameter"
+  value = 0
+}
+open float Diameter3 {
+  name = "Diameter of third solid"
+  descr = "diameter"
+  value = 0
+}
+open float Diameter4 {
+  name = "Diameter of forth solid"
+  descr = "diameter"
+  value = 0
+}
+
+// Store in Array to make it compact 
+float Diameters[4] 
+Diameters[0]=Diameter1
+Diameters[1]=Diameter2
+Diameters[2]=Diameter3
+Diameters[3]=Diameter4
+
+make MakeNozle(Form, Colors, S1_hight, decline, Diameters)
+
+//Make Adapter 
+//  make Adapter()
+  
+  
+  
+  
