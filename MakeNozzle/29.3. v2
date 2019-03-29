@@ -1,0 +1,47 @@
+#insert ("SolidRings.sps")
+
+
+
+function MakeStringer(int n, float hight, float width, float length){
+  solid Stringer
+      for(int i = 0; i <= n-1; i++){
+         Stringer = Stringer + rotation(<[ 0.0, 0.0, 1.0 ]>, rad( 60*i) ) >> translation(<[3,-0.3,0.0]>) >> box(length,width,hight)
+      }
+  return Stringer 
+}
+
+
+function TrimStringers(int n, solid a, float Diameter[]){
+  solid cyl1 = cylinder(100,Diameter[0]/2)
+  solid cyl2 = cylinder(100,Diameter[n]/2)
+  a = a&cyl1 
+  a = a-cyl2
+  return a
+}
+
+  
+  
+  
+function MakeNozle(int i,int n, float hight, float decline, float Diameter[])
+{
+  solid Solid 
+  float thickness
+  
+  switch(i)
+  {
+  case 1: 
+   for(int i_1=0; i_1 < n;i_1++)     
+    {
+    if (i_1==0)
+       {thickness = 6} 
+      else 
+       {thickness = 2}
+      Solid = Solid + SolidRings(hight, Diameter[i_1], thickness)
+      hight = hight - decline 
+    }
+   Solid = Solid + MakeStringer(5,hight-1,0.6,Diameter[0])
+   Solid = TrimStringers(n,Solid,Diameter)
+  }
+ 
+  return Solid
+}
