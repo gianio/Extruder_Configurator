@@ -1,0 +1,69 @@
+#insert ("SolidRings.sps")
+
+
+
+function MakeStringer(int n, float hight, float width, float length){
+  solid Stringer
+      for(int i = 0; i <= n ;i++){
+         Stringer = Stringer + rotation(<[ 0.0, 0.0, 1.0 ]>, rad( 60*i) ) >> translation(<[3,-0.3,0.0]>) >> box(length,width,hight)
+      }
+  return Stringer 
+}
+
+
+function TrimStringers(int n, solid a, int Diameters[], int Fix_Diameter[], float hight){
+  
+  int i = 0   // Better would be a loop!!
+  int c = (Fix_Diameter[i]-Diameters[i])/2
+  solid cyl1 = boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >> cylinder(100,Diameters[0]/2)
+ 
+  i = n-1
+  c = (Fix_Diameter[i]-Diameters[i])/2
+  solid cyl2 = boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>  cylinder(100,Diameters[i]/2-1)  
+  
+  a = a&cyl1 
+  a = a-cyl2
+  make a 
+  return a
+}
+
+function VarryGeometry(int Fix_Diameter,int Diameter, float thickness, float hight) 
+{
+  int c = (Fix_Diameter-Diameter)/2
+  solid Geometry = SolidRings(hight, Fix_Diameter, thickness)
+      make boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>, <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,
+            <[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,
+            <[-Fix_Diameter/2+c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c, Fix_Diameter/2-c, hight]>,<[-Fix_Diameter/2+c, Fix_Diameter/2-c, hight]>)  >> Geometry       
+  return Geometry
+}
+  
+  
+function MakeNozle(int i,int n, float hight, float decline, int Diameter[])
+{
+  solid Solid 
+  float thickness
+  int Fix_Diameter[]= [40,26,16,8]
+  
+  switch(i)
+  {
+  case 1: 
+   for(int i_1=0; i_1 < n;i_1++)     
+    {
+    if (i_1==0)
+       {thickness = 6} 
+      else 
+       {thickness = 2}
+      Solid = Solid + VarryGeometry(Fix_Diameter[i_1], Diameter[i_1], thickness,hight)
+      hight = hight - decline 
+    }
+   Solid = MakeStringer(5,hight-1,0.6,Fix_Diameter[0])    // + Solid ???
+   Solid = TrimStringers(n,Solid,Diameter, Fix_Diameter, hight)
+   make Solid 
+  }
+ 
+  return Solid
+}
