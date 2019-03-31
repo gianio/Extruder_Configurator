@@ -1,0 +1,77 @@
+//Main 
+
+#insert("importers.sps")
+#insert("MakeNozle.sps")
+
+
+
+// Fix Parameters
+float S1_diameter = 40
+float S1_thickness = 0.6
+float hight = 20
+float St_length = 14
+float St_width = 0.6
+float St_hight =20
+float decline =0.6 
+
+// Open Parameters to the Customer 
+
+open int Form {
+  name = "Which From you like to choose"
+  descr = "Form"
+  value = 1
+} 
+open int Colors {
+  name = "How many colors you like"
+  descr = "Colors"
+  value = 4
+}
+open int Diameter1 {
+  name = "Diameter of first solid"
+  descr = "diameter"
+  value = 40
+}
+open int Diameter2 {
+  name = "Diameter of second solid"
+  descr = "diameter"
+  value = 26
+}
+open int Diameter3 {
+  name = "Diameter of third solid"
+  descr = "diameter"
+  value = 16
+}
+open int Diameter4 {
+  name = "Diameter of forth solid"
+  descr = "diameter"
+  value = 8
+}
+
+
+// Store in Array to make it compact 
+int Diameters[] = [Diameter1, Diameter2, Diameter3, Diameter4]
+
+//Make Adapter 
+make Adapter()
+
+
+//Make Nozzle 
+solid Nozzle = MakeNozle(Form, Colors, hight, decline, Diameters)
+//make Nozzle
+
+
+
+//Diameters[0]=Diameters[0]-3
+/*
+int Fix_Diameters[] = [40,26,16,8]
+
+for(int i = 0; i < Colors ;i++){
+
+c = Fix_Diameters[i]-Diameters[i]
+Diameters[i]= Diameters[i]-3
+make boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >> Nozzle
+  
+  
+}
