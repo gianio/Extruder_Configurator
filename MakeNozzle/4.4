@@ -1,0 +1,131 @@
+#insert ("SolidRings.sps")
+#insert("SolidBox.sps")
+	
+	function Box(int x, float z){
+	int c = 0.7 
+  solid a3 = cylinder(z,x/2)
+  solid a1 = translation(<[-x/2,-x/2,0]>) >> box(x,x,z)
+  solid a2 = boxwarp( <[x/2,-x/2,z]>, <[x/2,x/2,z]>,  <[-x/2,-x/2,z]>,  <[x/2,-x/2,0.0]>,
+                     <[x/2*c,-x/2*c,z]>, <[x/2*c,x/2*c,z]>,  <[-x/2*c,x/2*c,z]>,   <[-x/2*c,-x/2*c,z]>,  
+                     <[x/2,-x/2,0.0]>, <[x/2,x/2,0.0]>,  <[-x/2,x/2,0.0]>,   <[-x/2,-x/2,0.0]>) >> a1
+  solid a4 = a3&a2
+  return a4
+	}
+	
+	
+	function MakeStringer(int n, float hight, float width, int length, int trans){
+	  solid Stringer
+	      for(int i = 0; i <= n ;i++){
+	         Stringer = Stringer + rotation(<[ 0.0, 0.0, 1.0 ]>, rad( 60*i) ) >> translation(<[trans,-0.3,0.0]>) >> box(length,width,hight)
+	      }
+	  return Stringer 
+	}
+	
+	
+	function TrimStringers(int n, solid a, int Fix_Diameter[], int Diameters[], float hight, float decline){
+	
+	  int i = 0   // Better would be a loop!! //Fix_Diameters and Diameter are swapt for timesaving reason
+	  //hight = hight + n*decline
+	  int c = (Diameters[i]-Fix_Diameter[i])/2
+	  solid cyl1 = boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+	        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+	        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >> cylinder(100,Diameters[i]/2)
+	
+	  i = n-1
+	  //hight = hight -n*decline
+	  c = (Diameters[i]-Fix_Diameter[i])/2
+	  solid cyl2 = boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+	        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+	        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>  cylinder(100,Diameters[i]/2)
+	  a = a&cyl1 
+	  a = a-cyl2
+	  make a 
+	  return a
+	}
+	
+	function TrimStringersBox(int n, solid a, int Fix_Diameter[], int Diameters[], float hight, float decline){
+	
+	  int i = 0   
+	  solid box1 = Box(Fix_Diameter[i],hight)
+	  int c = (Diameters[i]-Fix_Diameter[i])/2 //Fix_Diameters and Diameter are swapt for timesaving reason
+	  boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+	        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+	        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >> box1
+	
+	  i = n-1
+	  //hight = hight -n*decline
+	  c = (Diameters[i]-Fix_Diameter[i])/2
+	  solid box2 = Box(Fix_Diameter[i],hight)
+	  boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+	        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+	        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>  box2
+	  a = a&box1 
+	  a = a-box2
+	  make a 
+	  return a
+	}
+	
+	
+	function VarryGeometry(int Fix_Diameter,int Diameter, float thickness, float hight, int i)
+	{
+	  int c = (Fix_Diameter-Diameter)/2
+	  solid Geometry
+	
+	 switch(i){
+	  case 1:
+	      Geometry = SolidRings(hight, Fix_Diameter, thickness)
+	      make boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>, <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,
+	            <[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,
+	            <[-Fix_Diameter/2+c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c, Fix_Diameter/2-c, hight]>,<[-Fix_Diameter/2+c, Fix_Diameter/2-c, hight]>)  >> Geometry       
+	
+	  case 2:
+	      Geometry = SolidBox(hight, Fix_Diameter, thickness)
+	      make boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>, <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,
+	            <[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,
+	            <[-Fix_Diameter/2+c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c, Fix_Diameter/2-c, hight]>,<[-Fix_Diameter/2+c, Fix_Diameter/2-c, hight]>)  >> Geometry       
+	
+	  }
+	 return Geometry 
+	}
+	
+	
+	function MakeNozle(int i,int n, float hight, float decline, int Diameter[])
+	{
+	  solid Solid 
+	  float thickness
+	  int Fix_Diameter[]= [40,26,16,8]
+	
+	  switch(i)
+	  {
+	  case 1: 
+	   for(int i_1=0; i_1 < n;i_1++)     
+	    {
+	    if (i_1==0)
+	       {thickness = 6} 
+	      else 
+	       {thickness = 2}
+	      Solid = Solid + VarryGeometry(Fix_Diameter[i_1], Diameter[i_1], thickness,hight, i)
+	      hight = hight - decline 
+	    }
+	   solid Stringer = MakeStringer(5,hight-1,0.6,(Fix_Diameter[0]-Diameter[n-1])/2,Diameter[n-1])    // + Solid ??? Boxwarp-Problem 
+	   Stringer = TrimStringers(n,Stringer,Diameter, Fix_Diameter, hight, decline)
+	   
+	
+	
+	  case 2: 
+	    for(int i_1=0; i_1 < n;i_1++)     
+	    {
+	    if (i_1==0)
+	       {thickness = 6} 
+	      else 
+	       {thickness = 2}
+	      Solid = Solid + VarryGeometry(Fix_Diameter[i_1], Diameter[i_1], thickness,hight,i)
+	      hight = hight - decline 
+	    }
+	    solid Stringer = MakeStringer(5,hight-1,0.6,(Fix_Diameter[0]-Diameter[n-1])/2,Diameter[n-1])
+	    Stringer = TrimStringersBox(n,Stringer,Diameter, Fix_Diameter, hight, decline)
+	    
+	  }
+	
+	  return Solid
+	}
