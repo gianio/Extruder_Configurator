@@ -1,0 +1,67 @@
+/*styles for extruder configurator*/
+
+#overallstyle{
+  width: 400px;
+  margin: auto; /* centers content */
+  font-size: 12px;
+  font-family: Helvetica;
+  position: relative;
+  min-height: 100vh;
+}
+
+#content-wrap{
+  padding-bottom: 0px;
+}
+
+header{
+  height: 100px;
+  text-align: left;
+  padding: 20px;
+  margin-left: 0px;
+  margin-bottom: 30px;
+}
+
+body {
+  height: 300px;
+  width: 500px;
+  background-color: lightgrey;
+
+}
+
+h1 {
+  color: grey;
+  margin-left: 0px;
+}
+
+p {
+  color: red;
+  border: 1px solid grey;
+  padding: 30px;
+}
+
+Parameters{
+  width: 800px;
+  height: 800px;
+  float: left;
+  padding: 25px;
+  text-align: left;
+}
+
+#viewPort{
+  height: 300px;
+  width: 300px;
+  margin: auto;
+  margin-left: 300px;
+}
+
+
+footer{
+    position: absolute;
+    bottom: 0px;
+    width: 800px;
+    height: 40px;
+    text-align: center;
+    margin-left: 30px;
+    color: #FFF;
+    background-color: grey;
+  }
