@@ -1,88 +1,168 @@
-//Main 
-
-#insert("importers.sps")
-#insert("MakeNozle.sps")
-#insert("CheckArea.sps")
-
-
-// Fix Parameters
-float S1_diameter = 40
-float S1_thickness = 0.6
-float hight = 20
-float St_length = 14
-float St_width = 0.6
-float St_hight =20
-float decline =1.5     // Erfahrungswert1
-float Narrowing = 0.7  // Erfahrungswert2
+#insert ("SolidRings.sps")
+#insert("SolidBox.sps")
+#import ( "std/materials.sps" )
+enum mat_codes = materials::materials
 
 
-
-// Open Parameters to the Customer 
-
-open int Form {
-  name = "Which From you like to choose"
-  descr = "Form"
-  value = 1
-  min = 1
-  max = 2
-} 
-open int Colors {
-  name = "How many colors you like"
-  descr = "Colors"
-  value = 4
-  min = 1
-  max = 4
+function MakeStringer(int n, float hight, float width, int length){
+  solid Stringer
+      for(int i = 0; i <= n ;i++){
+         Stringer = Stringer + rotation(<[ 0.0, 0.0, 1.0 ]>, rad( 60*i) ) >> box(length+3,width,hight)
+      }
+  return Stringer 
 }
-open int Diameter4 {
-  name = "Diameter of forth solid"
-  descr = "diameter"
-  value = 8
-  min = 4
-  max = Narrowing*8
+
+
+function MakeAdapter(float h, float d, float t){
+  
+  //Import STL Gewinde und Adapter Parts 
+        mesh gewinde("Gewinde_new.stl") 
+        solid Gewinde = gewinde
+        make scaling(1.05) >> translation(<[0,0,10]>) >> Gewinde
+        solid Stringers1
+        
+        for(int i = 0; i <= 5; i++){
+        Stringers1 = Stringers1 + rotation(<[ 0.0, 0.0, 1.0 ]>, rad( 60*i) ) >> translation(<[3,-0.3,0.0]>) >> box(16,0.6,h)
+        }
+        
+        solid Solid1 = SolidRings(h,d,t)     //For-Loop
+        solid Solid2 = SolidRings(h,26,2)      
+        solid Solid3 = SolidRings(h,16,2)
+        solid Solid4 = SolidRings(h,8,2) 
+        
+        solid Adapter = Solid1+Solid2+Solid3+Solid4+Stringers1
+        
+        return Adapter
+        
 }
-open int Diameter3 {
-  name = "Diameter of third solid"
-  descr = "diameter"
-  value = 16
-  max = Diameter4 + (16-8)*Narrowing
-  min = Diameter4+4
-}
-open int Diameter2 {
-  name = "Diameter of second solid"
-  descr = "diameter"
-  value = 26
-  max = Diameter3 + (26-16)*Narrowing
-  min = Diameter3+4
+
+function TrimStringers(int n, solid a, int Diameters[], int Fix_Diameter[], float hight, float decline, float elongation){
+  
+  int i = 0   // Better would be a loop!!
+  hight = hight + n*decline   //Because decline before. (Question I'm asking my selfe, why it can alter a paramater out of the function?)
+  
+  int c = (Fix_Diameter[i]-Diameters[i])/2
+  solid cyl1 = cylinder(hight,Fix_Diameter[i]/2)
+   a=a&(boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>
+       boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation,Diameters[i]/2,hight]>,<[-Diameters[i]/2*elongation, Diameters[i]/2, hight]>) >>cyl1)
  
+ 
+  i = n-1
+  
+  c = (Fix_Diameter[i]-Diameters[i])/2
+  solid cyl2 = cylinder(hight,Fix_Diameter[i]/2)
+  a = a-(boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>  
+        boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation,Diameters[i]/2,hight]>,<[-Diameters[i]/2*elongation, Diameters[i]/2, hight]>) >>cyl2)
+  
+   material( mat_codes::SILVER)>>a
+  return a
 }
-open int Diameter1 {
-  name = "Diameter of first solid"
-  descr = "diameter"
-  value = 36
-  max = Diameter2 + (40-26)*Narrowing
-  min = Diameter2+4
+
+function TrimStringersBox(int n, solid a, int Fix_Diameter[],int Diameters[],  float hight, float decline, float elongation){
+  
+  int i = 0
+  hight = hight + n*decline   //Because decline before. (Question I'm asking my selfe, why it can alter a paramater out of the function?)
+  solid box1 = SolidBox(hight, Diameters[i],0,1)
+ 
+  int c = (Diameters[i]-Fix_Diameter[i])/2
+  a=a&(boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>
+     boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation, Diameters[i]/2,hight]>,<[-Diameters[i]/2*elongation, Diameters[i]/2,hight]>) >>box1)
+  i = n-1
+  
+  c = (Fix_Diameter[i]-Diameters[i])/2
+  solid box2 = SolidBox(hight, Fix_Diameter[i],0,1)
+  a= a-(boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2+c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c,-Diameters[i]/2+c,hight]>,<[Diameters[i]/2-c, Diameters[i]/2-c, hight]>,<[-Diameters[i]/2+c, Diameters[i]/2-c, hight]>) >>
+     boxwarp(<[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>, <[-Diameters[i]/2,-Diameters[i]/2,hight]>,
+        <[-Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,-Diameters[i]/2,0]>,<[Diameters[i]/2,Diameters[i]/2,0]>,<[-Diameters[i]/2,Diameters[i]/2,0]>,
+        <[-Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation,-Diameters[i]/2,hight]>,<[Diameters[i]/2*elongation, Diameters[i]/2,hight]>,<[-Diameters[i]/2*elongation, Diameters[i]/2,hight]>) >> box2)
+        
+  material( mat_codes::SILVER)>>a
+  return a
 }
 
-open float elongation{
-  name = "modify object in form of an elongation"
-  descr= "modify"
-  value = 1
-  max = 1
-  min = 0
+
+function VarryGeometry(int Fix_Diameter,int Diameter, float thickness, float hight, int i, float elongation)
+{
+  int c = (Fix_Diameter-Diameter)/2
+  solid Geometry
+  
+ switch(i){
+  case 1:
+      Geometry = SolidRings(hight, Fix_Diameter, thickness)
+       material( mat_codes::SILVER) >> boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,
+                                            <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>, 
+      /*1.BoxWarp for setting radi*/        <[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2+c,-Fix_Diameter/2+c,hight]>, 
+                                            <[Fix_Diameter/2-c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c, Fix_Diameter/2-c, hight]>,<[-Fix_Diameter/2+c, Fix_Diameter/2-c, hight]>) >>        
+                                            boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,  
+      /*2.BoxWarp for making ellipse*/      <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>, 
+                                            <[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2*elongation,-Fix_Diameter/2,hight]>, 
+                                            <[Fix_Diameter/2*elongation,-Fix_Diameter/2,hight]>,<[Fix_Diameter/2*elongation, Fix_Diameter/2, hight]>,<[-Fix_Diameter/2*elongation, Fix_Diameter/2, hight]>) >>Geometry
+      
+  case 2:
+       Geometry = SolidBox(hight, Fix_Diameter, thickness)
+        material( mat_codes::SILVER) >> boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,
+                                            <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>, 
+        /*1.BoxWarp for setting square*/    <[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2+c,-Fix_Diameter/2+c,hight]>, 
+                                            <[Fix_Diameter/2-c,-Fix_Diameter/2+c,hight]>,<[Fix_Diameter/2-c, Fix_Diameter/2-c, hight]>,<[-Fix_Diameter/2+c, Fix_Diameter/2-c, hight]>) >>        
+        /*1.BoxWarp for making rectangle*/  boxwarp(<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,  
+                                            <[-Fix_Diameter/2,-Fix_Diameter/2,hight]>,<[-Fix_Diameter/2,-Fix_Diameter/2,0]>,<[Fix_Diameter/2,-Fix_Diameter/2,0]>, 
+                                            <[Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2,Fix_Diameter/2,0]>,<[-Fix_Diameter/2*elongation,-Fix_Diameter/2,hight]>, 
+                                            <[Fix_Diameter/2*elongation,-Fix_Diameter/2,hight]>,<[Fix_Diameter/2*elongation, Fix_Diameter/2, hight]>,<[-Fix_Diameter/2*elongation, Fix_Diameter/2, hight]>) >>Geometry  
+  }
+ return Geometry 
 }
-
-
-// Store in Array to make it compact 
-int Diameters[] = [Diameter1, Diameter2, Diameter3, Diameter4]
-
-//Diameters=CheckArea(Diameters,Colors)
-
-//Make Adapter 
- //make rgb(250 ,0 , 0 )>>Adapter()
-
-
-//Make Nozzle 
-solid Nozzle = MakeNozle(Form, Colors, hight, decline, Diameters, elongation)
-
-
+  
+  
+function MakeNozle(int i,int n, float hight, float decline, int Diameter[], float elongation)
+{
+  solid Solid 
+  float thickness
+  int Fix_Diameter[]= [40,26,16,8]
+  
+  switch(i)
+  {
+  case 1: 
+   for(int i_1=0; i_1 < n;i_1++)     
+    {
+    if (i_1==0)
+       {thickness = 6} 
+      else 
+       {thickness = 2}
+      Solid = Solid + VarryGeometry(Fix_Diameter[i_1], Diameter[i_1], thickness,hight , i, elongation)
+      hight = hight - decline 
+    }
+   solid Stringer = MakeStringer(5,hight-1,0.6,(Fix_Diameter[0]-Diameter[n-1])/2)    // + Solid ??? Boxwarp-Problem 
+   Stringer = TrimStringers(n,Stringer,Diameter, Fix_Diameter, hight, decline,elongation)
+  
+  
+  case 2:
+    for(int i_1=0; i_1 < n;i_1++)     
+    {
+    if (i_1==0)
+       {thickness = 6} 
+      else 
+       {thickness = 2}
+      Solid = Solid + VarryGeometry(Fix_Diameter[i_1], Diameter[i_1], thickness,hight,i, elongation)
+      hight = hight - decline 
+    }
+    solid Stringer = MakeStringer(5,hight-1,0.6,(Fix_Diameter[0]-Diameter[n-1])/2)
+    Stringer = TrimStringersBox(n,Stringer,Diameter, Fix_Diameter, hight, decline,elongation)
+  }
+  make MakeAdapter(11,38,6)
+  return Solid
+}
 
